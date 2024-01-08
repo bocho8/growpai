@@ -11,19 +11,11 @@ local local_world = {
     size_y = 0,
     name = ""
 }
-
 local mag_seeds = {x, y}
-local mag_blocks = {x, y}
-local break_pos = {x, y}
-
 local start = false
 
 local function GET_CMD(packet)
     return packet:gsub("action|input\n|text|/", "")
-end
-
-local function GET_CMD_ARGS(packet, command)
-    return packet:gsub("action|input\n|text|/" .. command, "")
 end
 
 local function is_in_world()
@@ -31,24 +23,19 @@ local function is_in_world()
 end
 
 local function set_world_size()
-
     if local_world.size_x ~= 0 and local_world.size_y ~= 0 then
         return
     end
-
     local x, y = {}, {}
-
     if not is_in_world() then
         local_world.size_x = 0
         local_world.size_y = 0
         return
     end
-    
     for _, tile in pairs(GetTiles()) do
         table.insert(x, tile.pos_x)
         table.insert(y, tile.pos_y)
     end
-
     if math.max(table.unpack(x)) >= 127 or math.max(table.unpack(y)) >= 127 then
         local_world.size_x = 199
         local_world.size_y = 199
@@ -56,7 +43,6 @@ local function set_world_size()
         local_world.size_x = math.max(table.unpack(x))
         local_world.size_y = math.max(table.unpack(y))
     end
-
 end
 
 local function count(id)
@@ -83,13 +69,11 @@ local function pkt_punch(x, y, id)
 end
 
 function check_remote()
-
     if count(5640) < 1 then
         FindPath(mag_seeds.x, mag_seeds.y - 1)
         pkt_punch(x, y, 32)
         SendPacket(2, "action|dialog_return\ndialog_name|magplant_edit\nx|".. mag_seeds.x .."|\ny|" .. mag_seeds.y .. "|\nbuttonClicked|getRemote")
     end
-
     return count(5640) >= 1
 end
 
@@ -102,9 +86,7 @@ local function on_dialog(str)
 end
 
 local function plant()
-
     local stop = false
-
     AddCallback("plant", "OnVarlist", function(varlist, packet)
         if varlist[0] == "OnTalkBubble" then
             if varlist[2] == "The MAGPLANT 5000 is empty." then
@@ -115,13 +97,9 @@ local function plant()
         if varlist[0] == "OnDialogRequest" then
             return true
         end
-
     end)
-
     local x_increment, x_max, x_start
-
     log("Planting")
-
     for y = local_world.size_y, 0, -1 do
        x_increment = 6
        x_max = local_world.size_x
@@ -165,7 +143,6 @@ local function plant()
     end
 
     for y = local_world.size_y, 0, -1 do
-
         x_increment = 1
         x_max = local_world.size_x
         x_start = 0
@@ -194,24 +171,18 @@ local function plant()
                 pkt_punch(x, y, 5640)
                 Sleep(130)
             end
-
         end
     end
-
     RemoveCallback("plant")
-
     return true
-
 end
 
 local function harvest()
-
     log("Harvesting")
 
     local x_increment, x_max, x_start
 
     for y = local_world.size_y, 0, -1 do
-
         x_increment = 1
         x_max = local_world.size_x
         x_start = 0
@@ -235,12 +206,9 @@ local function harvest()
                 pkt_punch(x, y, 18)
                 Sleep(130)
             end
-
         end
     end
-
     return true
-
 end
 
 local function do_uws()
@@ -249,7 +217,6 @@ local function do_uws()
 end
 
 function main()
-
     set_world_size()
     if local_world.name == "" then
         local_world.name = GetLocal().world
@@ -287,7 +254,6 @@ function main()
     end
 
     while true do
-        
         Sleep(200)
 
         if GetItemCount(12600) < 1 then
@@ -301,7 +267,6 @@ function main()
         end
 
         if start then
-
             for _,tile in pairs(GetTiles()) do
                 if tile.ready and GetIteminfo(tile.fg).growth > 0 then
                     harvest()
@@ -325,11 +290,8 @@ function main()
                 end
             end
         end
-
     end
-
     on_dialog("Finished")
-
 end
 
 main()
