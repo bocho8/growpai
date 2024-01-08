@@ -195,6 +195,11 @@ local function harvest()
 
         for x = x_start, x_max, x_increment do
 
+            if stop == true then
+                log("Stopping...")
+                return false
+            end
+
             while local_world.name ~= GetLocal().world do
                 log("Waiting for reconnect...")
                 Sleep(5000)
@@ -228,6 +233,9 @@ function main()
                 --SendPacket(2, "action|input\n|text|/ghost")
                 EditToggle("ModFly", true)
                 start = true
+            end
+            if GET_CMD(packet) == "stop" then
+                stop = true
             end
         end
     end)
